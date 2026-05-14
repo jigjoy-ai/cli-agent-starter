@@ -1,8 +1,10 @@
-![Mozaik CLI — terminal chat UI](public/mozaik-cli.png)
+# Mozaik CLI
 
 Reference terminal application built with **[Ink](https://github.com/vadimdemedes/ink)** that demonstrates how to use [**`@mozaik-ai/core`**](https://www.npmjs.com/package/@mozaik-ai/core): a TypeScript framework for **collaborative, event-driven agents**. Humans, agents, observers, and tools are all **participants** in the same **`AgenticEnvironment`**. Events (messages, function calls, model output) fan out to subscribers **without a central scheduler**, so you can compose reactive behaviors cleanly.
 
 This repo is intentionally small: one agent that runs shell commands via tools, plus an observer that bridges Mozaik events into the React terminal UI.
+
+![Mozaik CLI — terminal chat UI](public/mozaik-cli.png)
 
 ---
 
