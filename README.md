@@ -1,7 +1,5 @@
 # mozaik-cli
 
-![Mozaik CLI](public/mozaik-cli.png)
-
 Terminal chat for the **Mozaik** agent: an [Ink](https://github.com/vadimdemedes/ink) UI, tool calling, and streaming replies via `@mozaik-ai/core`.
 
 ## Usage
@@ -17,5 +15,6 @@ Or link it globally after build:
 npm link
 mozaik-cli
 ```
+![Mozaik CLI](public/mozaik-cli.png)
 
 Load secrets from a `.env` in the current directory (or parent paths). See the Mozaik / OpenAI setup you use for this project.
