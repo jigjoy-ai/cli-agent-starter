@@ -4,21 +4,10 @@ import {
 	ModelContext,
 	OpenAIInferenceRunner,
 	DefaultFunctionCallRunner,
-	InputStream,
-} from '@mozaik-ai/core';
-import {capitalOfFranceTool} from './capital-of-france-tool.js';
-import {ReactiveAgent} from './reactive-agent.js';
-import {UIParticipant} from './ui-participant.js';
-
-class NoopInputStream implements InputStream {
-	async *stream(signal?: AbortSignal): AsyncIterable<string> {
-		await new Promise<void>(resolve => {
-			if (!signal) return;
-			if (signal.aborted) return resolve();
-			signal.addEventListener('abort', () => resolve(), {once: true});
-		});
-	}
-}
+} from '@mozaik-ai/core'
+import { terminalTools } from './terminal/tools.js'
+import { TerminalAgent } from './terminal/agent.js'
+import { UIUpdater } from './ui-updater.js'
 
 export type AgentSession = {
 	send: (message: string) => void;
@@ -31,29 +20,27 @@ export type AgentListeners = {
 
 export function createAgentSession(listeners: AgentListeners): AgentSession {
 	const functionCallRunner = new DefaultFunctionCallRunner([
-		capitalOfFranceTool,
+		...terminalTools,
 	]);
-	const inputSource = new NoopInputStream();
 	const inferenceRunner = new OpenAIInferenceRunner();
 
 	const context = ModelContext.create('cli-agent');
 	const model = new Gpt54();
-	model.setTools([capitalOfFranceTool]);
+	model.setTools([...terminalTools]);
 
 	const environment = new AgenticEnvironment();
-	const agent = new ReactiveAgent(
-		inputSource,
+	const agent = new TerminalAgent(
 		inferenceRunner,
 		functionCallRunner,
 		environment,
 		context,
 		model,
 	);
-	const ui = new UIParticipant(listeners);
+	const uiUpdater = new UIUpdater(listeners);
 
-	environment.start();
 	agent.join(environment);
-	ui.join(environment);
+	uiUpdater.join(environment);
+	environment.start();
 
 	return {
 		send: (message: string) => agent.onMessage(message),

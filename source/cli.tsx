@@ -9,6 +9,7 @@ import App from './app.js';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({
+	quiet: true,
 	path: [
 		path.resolve(process.cwd(), '.env'),
 		path.resolve(here, '..', '..', '.env'),

@@ -1,5 +1,5 @@
 {
-	"name": "cli-agent",
+	"name": "mozaik-cli",
 	"version": "0.0.0",
 	"license": "MIT",
 	"bin": "dist/cli.js",
@@ -16,7 +16,7 @@
 		"dist"
 	],
 	"dependencies": {
-		"@mozaik-ai/core": "^3.8.8",
+		"@mozaik-ai/core": "^3.9.3",
 		"dotenv": "^17.4.2",
 		"ink": "^4.1.0",
 		"ink-big-text": "^2.0.0",
