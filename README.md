@@ -10,14 +10,10 @@ Fork or copy this repo, rename the package, add tools and participants, and ship
 
 ## Use this template
 
-This repository is meant to be **copied into a new project** so you keep a **clean git history** (no template commits).
-
-### Copy files with a fresh history (`npx degit`)
-
-[**degit**](https://github.com/Rich-Harris/degit) downloads a snapshot of the default branch **without** cloning `.git`.
+This repository is meant to be **copied into a new project** so you keep a **clean git history**.
 
 ```bash
-npx degit jigjoy-ai/mozaik-cli my-cli-agent
+npx degit jigjoy-ai/cli-agent-starter my-cli-agent
 cd my-cli-agent
 git init
 git add .
@@ -25,7 +21,7 @@ git commit -m "Initial commit"
 npm install
 ```
 
-Replace `jigjoy-ai/mozaik-cli` with your fork or the published template URL if it moves. Replace `my-cli-agent` with your project folder name.
+Replace `jigjoy-ai/cli-agent-starter` with your fork or the published template URL if it moves. Replace `my-cli-agent` with your project folder name.
 
 Then customize:
 
