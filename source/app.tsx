@@ -70,7 +70,7 @@ export default function App() {
 				paddingY={0}
 			>
 				<Gradient name="pastel">
-					<BigText text="Mozaik CLI" font="block" />
+					<BigText text="CLI Agent" font="block" />
 				</Gradient>
 				<Text dimColor>Welcome! Chat with your agent. /exit to quit.</Text>
 			</Box>

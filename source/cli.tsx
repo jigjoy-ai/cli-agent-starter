@@ -22,7 +22,7 @@ meow(
 	Usage
 	  $ cli-agent
 
-	Starts an interactive chat with the Mozaik agent.
+	Starts an interactive chat with CLI Agent.
 	Type your message and press Enter. Use /exit to quit.
 `,
 	{

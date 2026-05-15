@@ -1,23 +1,53 @@
-# Mozaik CLI
+# CLI Agent Starter
 
-Reference terminal application built with **[Ink](https://github.com/vadimdemedes/ink)** that demonstrates how to use [**`@mozaik-ai/core`**](https://www.npmjs.com/package/@mozaik-ai/core): a TypeScript framework for **collaborative, event-driven agents**. Humans, agents, observers, and tools are all **participants** in the same **`AgenticEnvironment`**. Events (messages, function calls, model output) fan out to subscribers **without a central scheduler**, so you can compose reactive behaviors cleanly.
+A **starter template** for building **terminal CLI agents**: an [Ink](https://github.com/vadimdemedes/ink) chat UI wired to [**`@mozaik-ai/core`**](https://www.npmjs.com/package/@mozaik-ai/core), a TypeScript framework for **collaborative, event-driven agents**. Humans, agents, observers, and tools participate in one **`AgenticEnvironment`**; events fan out to subscribers without a central scheduler so you can compose reactive behaviors cleanly.
 
-This repo is intentionally small: one agent that runs shell commands via tools, plus an observer that bridges Mozaik events into the React terminal UI.
+Fork or copy this repo, rename the package, add tools and participants, and ship your own agent-backed CLI.
 
-![Mozaik CLI — terminal chat UI](public/mozaik-cli.png)
+![CLI Agent Starter — terminal chat UI](public/cli-agent.png)
 
 ---
 
-## What this project showcases
+## Use this template
 
-| Mozaik concept                                                        | Where it lives in this repo                                                                                      |
+This repository is meant to be **copied into a new project** so you keep a **clean git history** (no template commits).
+
+### Copy files with a fresh history (`npx degit`)
+
+[**degit**](https://github.com/Rich-Harris/degit) downloads a snapshot of the default branch **without** cloning `.git`.
+
+```bash
+npx degit jigjoy-ai/mozaik-cli my-cli-agent
+cd my-cli-agent
+git init
+git add .
+git commit -m "Initial commit"
+npm install
+```
+
+Replace `jigjoy-ai/mozaik-cli` with your fork or the published template URL if it moves. Replace `my-cli-agent` with your project folder name.
+
+Then customize:
+
+- Set **`name`** (and optionally **`bin`**) in [`package.json`](package.json).
+- Adjust branding and copy in [`source/cli.tsx`](source/cli.tsx), [`source/app.tsx`](source/app.tsx), and this README.
+
+### Alternative: GitHub “Use this template”
+
+If you enable **Template repository** in the repo settings on GitHub, **Use this template** creates a new repository whose **first commit** is the template snapshot—also a straightforward way to start without inheriting long unrelated history.
+
+---
+
+## What this template includes
+
+| Concept                                                               | Where it lives                                                                                                   |
 | --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
 | **`AgenticEnvironment`** — shared bus for participants                | [`source/session.ts`](source/session.ts): `environment.start()` after `join()`                                   |
 | **`BaseAgentParticipant`** — inference + tool execution               | [`source/terminal/agent.ts`](source/terminal/agent.ts): `TerminalAgent`                                          |
 | **`BaseObserverParticipant`** — react to _other_ participants’ events | [`source/ui-updater.ts`](source/ui-updater.ts): `UIUpdater` (`onExternalModelMessage`, `onExternalFunctionCall`) |
 | **`ModelContext`** + **`GenerativeModel`** (`Gpt54`)                  | [`source/session.ts`](source/session.ts)                                                                         |
 | **`OpenAIInferenceRunner`** + **`DefaultFunctionCallRunner`**         | [`source/session.ts`](source/session.ts)                                                                         |
-| **Declarative `Tool` definitions**                                    | [`source/terminal/tools.ts`](source/terminal/tools.ts)                                                           |
+| Declarative **`Tool`** definitions                                    | [`source/terminal/tools.ts`](source/terminal/tools.ts)                                                           |
 
 The Ink UI does **not** call OpenAI directly. It calls `session.send(message)`, which forwards to the agent; the **`UIUpdater`** observer listens for assistant text and tool notifications on the environment and updates the UI through callbacks.
 
@@ -31,7 +61,7 @@ flowchart LR
     App[app.tsx]
   end
 
-  subgraph mozaik [Mozaik environment]
+  subgraph mozaik [Agent environment]
     Env((AgenticEnvironment))
     Agent[TerminalAgent]
     Obs[UIUpdater]
@@ -53,9 +83,7 @@ flowchart LR
 
 1. **`createAgentSession`** wires `DefaultFunctionCallRunner` (tools), `OpenAIInferenceRunner`, `ModelContext`, `Gpt54`, `TerminalAgent`, and `UIUpdater`, then starts the environment.
 2. **`TerminalAgent`** extends **`BaseAgentParticipant`**. On user input it injects a short developer instruction plus a **`UserMessageItem`**, then **`runInference`**. When the model emits a **`FunctionCallItem`**, it records it in context and **`executeFunctionCall`**; when outputs return and pending calls drain, it **`runInference`** again (typical agent loop).
-3. **`UIUpdater`** extends **`BaseObserverParticipant`**. It overrides **`onExternalModelMessage`** to surface assistant text to Ink, and **`onFunctionCall` / `onExternalFunctionCall`** to show which tool was invoked (the CLI agent and any parallel participant would both surface here).
-
-This mirrors the mental model from the upstream Mozaik docs: producers emit events; observers and other agents react via **`onExternal*`** handlers.
+3. **`UIUpdater`** extends **`BaseObserverParticipant`**. It overrides **`onExternalModelMessage`** to surface assistant text to Ink, and **`onFunctionCall` / `onExternalFunctionCall`** to show which tool was invoked.
 
 ---
 
@@ -68,7 +96,7 @@ This mirrors the mental model from the upstream Mozaik docs: producers emit even
 
 ## Setup
 
-1. Clone and install dependencies:
+1. Install dependencies:
 
    ```bash
    npm install
@@ -96,11 +124,11 @@ Run the compiled CLI:
 node dist/cli.js
 ```
 
-Or link globally after a build:
+Or link globally after a build (command matches the `"name"` field in `package.json`):
 
 ```bash
 npm link
-mozaik-cli
+cli-agent
 ```
 
 In the TUI: type a message and press **Enter**. Use **`/exit`**, **`/quit`**, **Escape**, or **Ctrl+C** to quit (Escape exits via Ink’s `useInput`).
@@ -115,7 +143,7 @@ When the model calls **`run_command`**, output is also printed to **`stdout`** f
 | ------------------------------------------------------------------------ | ---------------------------------------------------- |
 | [`source/cli.tsx`](source/cli.tsx)                                       | Entry: `dotenv`, `meow` help, `render(<App />)`      |
 | [`source/app.tsx`](source/app.tsx)                                       | Ink UI, local chat state, `createAgentSession` hooks |
-| [`source/session.ts`](source/session.ts)                                 | Mozaik wiring: environment, agent, observer, model   |
+| [`source/session.ts`](source/session.ts)                                 | Wiring: environment, agent, observer, model          |
 | [`source/ui-updater.ts`](source/ui-updater.ts)                           | Observer participant → UI callbacks                  |
 | [`source/terminal/agent.ts`](source/terminal/agent.ts)                   | Agent participant: context + inference loop          |
 | [`source/terminal/tools.ts`](source/terminal/tools.ts)                   | `Tool[]` for `run_command`                           |
@@ -137,9 +165,9 @@ When the model calls **`run_command`**, output is also printed to **`stdout`** f
 ## Learning more
 
 - **Package:** [`@mozaik-ai/core` on npm](https://www.npmjs.com/package/@mozaik-ai/core) — install with `npm install @mozaik-ai/core`.
-- **Upstream README** (shipped with the package) documents **`Participant`** handlers (`onMessage`, `onFunctionCall`, `onExternalModelMessage`, …), **`BaseHumanParticipant`**, and reactive agent patterns — this CLI is a concrete subset focused on **one agent + one observer**.
+- The upstream README documents **`Participant`** handlers (`onMessage`, `onFunctionCall`, `onExternalModelMessage`, …), **`BaseHumanParticipant`**, and reactive agent patterns — this starter focuses on **one agent + one observer** as a minimal base.
 
-To extend this demo: add another **`BaseAgentParticipant`** or **`BaseHumanParticipant`**, **`join`** it to the same **`AgenticEnvironment`**, and observe cross-agent traffic via **`onExternal*`** — that is the collaborative, event-driven composition model Mozaik is built for.
+To extend your CLI: add another **`BaseAgentParticipant`** or **`BaseHumanParticipant`**, **`join`** it to the same **`AgenticEnvironment`**, and observe cross-agent traffic via **`onExternal*`** handlers.
 
 ---
 
